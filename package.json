@@ -1,0 +1,19 @@
+{
+  "name": "instance-manager",
+  "version": "1.0.0",
+  "description": "Manage instance limits, user counts, and license expiry for Frappe",
+  "main": "index.js",
+  "author": "Your Organization",
+  "license": "MIT",
+  "keywords": [
+    "frappe",
+    "instance",
+    "license",
+    "user-limits",
+    "expiry"
+  ],
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}

@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Instance Settings",
+ "creation": "2026-04-22 10:00:00.000000",
+ "default_view": "List",
+ "docstatus": 0,
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "settings_title",
+  "section_break_user_limits",
+  "ess_user_limit",
+  "core_user_limit",
+  "section_break_db",
+  "database_limit_gb",
+  "section_break_expiry",
+  "expiry_date",
+  "section_break_status",
+  "status_info"
+ ],
+ "fields": [
+  {
+   "fieldname": "settings_title",
+   "fieldtype": "Data",
+   "label": "Instance Name",
+   "read_only": 0,
+   "reqd": 0
+  },
+  {
+   "fieldname": "section_break_user_limits",
+   "fieldtype": "Section Break",
+   "label": "User Limits"
+  },
+  {
+   "fieldname": "ess_user_limit",
+   "fieldtype": "Int",
+   "label": "ESS User Limit",
+   "default": 100,
+   "reqd": 1
+  },
+  {
+   "fieldname": "core_user_limit",
+   "fieldtype": "Int",
+   "label": "Core User Limit",
+   "default": 50,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_db",
+   "fieldtype": "Section Break",
+   "label": "Database Limits"
+  },
+  {
+   "fieldname": "database_limit_gb",
+   "fieldtype": "Float",
+   "label": "Database Size Limit (GB)",
+   "default": 10.0,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_expiry",
+   "fieldtype": "Section Break",
+   "label": "License Expiry"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_status",
+   "fieldtype": "Section Break",
+   "label": "Status Information"
+  },
+  {
+   "fieldname": "status_info",
+   "fieldtype": "HTML",
+   "label": "Status Info",
+   "read_only": 1
+  }
+ ],
+ "idx": 1,
+ "istable": 0,
+ "links": [],
+ "modified": "2026-04-22 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Instance Manager",
+ "name": "Instance Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 0,
+   "cancel": 0,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 0,
+   "if_owner": 0,
+   "permlevel": 0,
+   "print": 1,
+   "read": 1,
+   "report": 0,
+   "role": "System Manager",
+   "share": 0,
+   "submit": 0,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "settings_title",
+ "track_changes": 1
+}
