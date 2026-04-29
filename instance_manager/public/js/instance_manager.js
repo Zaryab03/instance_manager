@@ -1,88 +1,122 @@
-// Instance Manager - Homepage Bar Component
-// Shows remaining days until license expiry
-
 frappe.provide("instance_manager");
 
-instance_manager.load_instance_bar = function() {
-	// Load instance status and show the bar if needed
+instance_manager.load_instance_bar = function () {
 	frappe.call({
-		method: "instance_manager.doctype.instance_settings.instance_settings.get_instance_status",
-		callback: function(r) {
+		method: "instance_manager.instance_manager.doctype.instance_settings.instance_settings.get_instance_status",
+		callback: function (r) {
 			if (r.message) {
-				instance_manager.show_instance_bar(r.message);
+				instance_manager.render(r.message);
 			}
-		}
+		},
 	});
 };
 
-instance_manager.show_instance_bar = function(status) {
-	const days_remaining = status.days_remaining;
-	const is_expired = status.expired;
-	const expiry_date = status.expiry_date;
-	
-	let message = "";
-	let alert_class = "";
-	
-	if (is_expired) {
-		message = `<strong>⚠️ License Expired!</strong> Your instance license expired on ${expiry_date}. Please contact your administrator.`;
-		alert_class = "alert-danger";
-	} else if (days_remaining <= 7) {
-		message = `<strong>⚠️ License Expiring Soon!</strong> Only <strong>${days_remaining}</strong> day(s) left until expiry on ${expiry_date}. Please renew your license.`;
-		alert_class = "alert-warning";
-	} else if (days_remaining <= 30) {
-		message = `<strong>ℹ️ License Expiry Notice:</strong> <strong>${days_remaining}</strong> days left until expiry on ${expiry_date}.`;
-		alert_class = "alert-info";
-	} else {
-		// Don't show bar if more than 30 days
+instance_manager.render = function (status) {
+	$(".instance-expiry-bar").remove();
+	$("#instance-suspended-overlay").remove();
+
+	if (status.suspended) {
+		instance_manager.show_suspended_overlay(status);
 		return;
 	}
-	
-	// Check if bar already exists
-	let existing_bar = document.querySelector(".instance-expiry-bar");
-	if (existing_bar) {
-		existing_bar.remove();
-	}
-	
-	// Create the bar
-	const bar = document.createElement("div");
-	bar.className = `alert ${alert_class} instance-expiry-bar`;
-	bar.style.cssText = `
-		margin: 0;
-		padding: 12px 15px;
-		border-radius: 4px;
-		font-size: 14px;
-		position: relative;
-		z-index: 1000;
-	`;
-	bar.innerHTML = message;
-	
-	// Insert at the top of the main content
-	const navbar = document.querySelector(".navbar-fixed-top");
-	if (navbar) {
-		navbar.parentNode.insertBefore(bar, navbar.nextSibling);
+
+	let message = "";
+	let bar_class = "";
+	let icon = "⚠";
+
+	if (status.in_grace) {
+		const grace_left = status.grace_days_remaining;
+		const since = status.days_since_expiry;
+		message =
+			`<strong>License Expired – Grace Period Active:</strong> ` +
+			`Expired <strong>${since}</strong> day(s) ago. ` +
+			`<strong>${grace_left}</strong> grace day(s) remaining before suspension. ` +
+			`Please contact your administrator.`;
+		bar_class = "instance-bar-danger";
+		icon = "⛔";
+	} else if (status.days_remaining <= 7) {
+		message =
+			`<strong>License Expiring Soon!</strong> ` +
+			`Only <strong>${status.days_remaining}</strong> day(s) left — expires on <strong>${status.expiry_date}</strong>. ` +
+			`Please renew your license.`;
+		bar_class = "instance-bar-warning";
+	} else if (status.days_remaining <= 30) {
+		message =
+			`<strong>License Expiry Notice:</strong> ` +
+			`<strong>${status.days_remaining}</strong> days remaining until expiry on <strong>${status.expiry_date}</strong>.`;
+		bar_class = "instance-bar-info";
 	} else {
-		const main_section = document.querySelector(".main-section");
-		if (main_section) {
-			main_section.parentNode.insertBefore(bar, main_section);
-		}
+		return;
 	}
+
+	const bar_html = `
+		<div class="instance-expiry-bar ${bar_class}">
+			<span class="bar-icon">${icon}</span>
+			<span class="bar-message">${message}</span>
+		</div>`;
+
+	$(".layout-main-section").before(bar_html);
 };
 
-// Load instance bar on page load
-if (document.readyState === "loading") {
-	document.addEventListener("DOMContentLoaded", function() {
-		instance_manager.load_instance_bar();
-	});
-} else {
-	instance_manager.load_instance_bar();
-}
+instance_manager.show_suspended_overlay = function (status) {
+	const since = status.days_since_expiry;
+	const expiry_date = status.expiry_date;
+	const grace_days = status.grace_period_days;
 
-// Reload the bar periodically (every 5 minutes)
-setInterval(function() {
+	const overlay_html = `
+		<div id="instance-suspended-overlay">
+			<div class="suspended-card">
+				<div class="suspended-lock">🔒</div>
+				<h2 class="suspended-title">Instance Suspended</h2>
+				<p class="suspended-sub">Access to this instance has been disabled.</p>
+				<div class="suspended-details">
+					<p>License expired on <strong>${expiry_date}</strong> (<strong>${since}</strong> day(s) ago).</p>
+					<p>Grace period of <strong>${grace_days}</strong> day(s) has ended.</p>
+				</div>
+				<div class="suspended-contact">
+					<p>Please contact your administrator to renew the license and restore access.</p>
+				</div>
+			</div>
+		</div>`;
+
+	$("body").append(overlay_html);
+};
+
+$(document).on("page-change", function () {
+	instance_manager.load_instance_bar();
+});
+
+setInterval(function () {
 	instance_manager.load_instance_bar();
 }, 5 * 60 * 1000);
 
-// Also hook into page changes
-$(document).on("page-change", function() {
-	instance_manager.load_instance_bar();
-});
+// ── User list: block "New" button when all limits are reached ─────────────
+
+(function () {
+	var existing = frappe.listview_settings["User"] || {};
+	var orig_onload = existing.onload;
+
+	frappe.listview_settings["User"] = Object.assign({}, existing, {
+		onload: function (listview) {
+			if (orig_onload) orig_onload(listview);
+
+			var orig_make_new = listview.make_new_doc.bind(listview);
+			listview.make_new_doc = function () {
+				frappe.call({
+					method: "instance_manager.instance_manager.instance_manager.doctype.instance_settings.instance_settings.check_new_user_allowed",
+					callback: function (r) {
+						if (r.message && !r.message.allowed) {
+							frappe.msgprint({
+								title: __("User Limit Exceeded"),
+								message: r.message.reason,
+								indicator: "red",
+							});
+						} else {
+							orig_make_new();
+						}
+					},
+				});
+			};
+		},
+	});
+})();

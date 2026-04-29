@@ -5,6 +5,7 @@ import frappe
 from datetime import date
 
 from frappe.model.document import Document
+from frappe.utils import getdate
 
 
 class InstanceSettings(Document):
@@ -21,7 +22,8 @@ class InstanceSettings(Document):
 		if self.database_limit_gb <= 0:
 			frappe.throw("Database Limit must be greater than 0")
 		
-		if self.expiry_date and self.expiry_date < date.today():
+		expiry_date = self.get_expiry_date()
+		if expiry_date and expiry_date < date.today():
 			frappe.msgprint("Warning: Expiry date is in the past!", alert=True)
 
 	def on_update(self):
@@ -45,11 +47,16 @@ class InstanceSettings(Document):
 
 	def get_days_remaining(self):
 		"""Calculate days remaining until expiry"""
-		if not self.expiry_date:
+		expiry_date = self.get_expiry_date()
+		if not expiry_date:
 			return -1
 		
-		days = (self.expiry_date - date.today()).days
+		days = (expiry_date - date.today()).days
 		return max(days, 0)
+
+	def get_expiry_date(self):
+		"""Return expiry_date as a date object even when Frappe provides a string."""
+		return getdate(self.expiry_date) if self.expiry_date else None
 
 	def get_ess_user_count(self):
 		"""Get count of active ESS users"""
@@ -65,30 +72,21 @@ class InstanceSettings(Document):
 			"user_type": "System User"
 		})
 
+	# See instance_manager/instance_manager/ for the authoritative version
 	@staticmethod
 	def get_instance_settings():
-		"""Get or create the instance settings document"""
-		try:
-			return frappe.get_doc("Instance Settings", "Instance Settings")
-		except frappe.DoesNotExistError:
-			doc = frappe.new_doc("Instance Settings")
-			doc.name = "Instance Settings"
-			doc.settings_title = "Default Instance"
-			doc.ess_user_limit = 100
-			doc.core_user_limit = 50
-			doc.database_limit_gb = 10.0
-			doc.expiry_date = date(2027, 12, 31)
-			doc.insert(ignore_permissions=True)
-			return doc
+		return frappe.get_single("Instance Settings")
 
 	def is_expired(self):
 		"""Check if instance is expired"""
-		if not self.expiry_date:
+		expiry_date = self.get_expiry_date()
+		if not expiry_date:
 			return False
-		return date.today() > self.expiry_date
+		return date.today() > expiry_date
 
 	def get_status(self):
 		"""Get instance status information"""
+		expiry_date = self.get_expiry_date()
 		return {
 			"expired": self.is_expired(),
 			"days_remaining": self.get_days_remaining(),
@@ -97,15 +95,18 @@ class InstanceSettings(Document):
 			"ess_limit": self.ess_user_limit,
 			"core_limit": self.core_user_limit,
 			"database_limit_gb": self.database_limit_gb,
-			"expiry_date": str(self.expiry_date)
+			"expiry_date": expiry_date.isoformat() if expiry_date else None
 		}
 
 
 @frappe.whitelist()
 def get_instance_status():
 	"""API endpoint to get instance status"""
-	settings = InstanceSettings.get_instance_settings()
-	return settings.get_status()
+	try:
+		settings = InstanceSettings.get_instance_settings()
+		return settings.get_status()
+	except Exception:
+		return None
 
 
 @frappe.whitelist()

@@ -1,0 +1,107 @@
+/* ── Expiry bar ──────────────────────────────────────────────────────────── */
+
+.instance-expiry-bar {
+	display: flex;
+	align-items: center;
+	padding: 10px 16px;
+	margin-bottom: 12px;
+	border-radius: 6px;
+	font-size: 13px;
+	line-height: 1.5;
+	border: 1px solid transparent;
+}
+
+.instance-expiry-bar .bar-icon {
+	margin-right: 8px;
+	font-size: 16px;
+	flex-shrink: 0;
+}
+
+.instance-expiry-bar .bar-message {
+	flex: 1;
+}
+
+.instance-bar-danger {
+	background-color: #fff2f2;
+	border-color: #ffc5c5;
+	color: #c0392b;
+}
+
+.instance-bar-warning {
+	background-color: #fff8ec;
+	border-color: #ffd591;
+	color: #8a5700;
+}
+
+.instance-bar-info {
+	background-color: #f0f7ff;
+	border-color: #aecef7;
+	color: #1a5fa8;
+}
+
+/* ── Suspended overlay ───────────────────────────────────────────────────── */
+
+#instance-suspended-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(10, 10, 15, 0.92);
+	z-index: 99999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.suspended-card {
+	background: #ffffff;
+	border-radius: 12px;
+	padding: 48px 52px;
+	max-width: 460px;
+	width: 90%;
+	text-align: center;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+.suspended-lock {
+	font-size: 52px;
+	margin-bottom: 16px;
+	line-height: 1;
+}
+
+.suspended-title {
+	font-size: 22px;
+	font-weight: 700;
+	color: #c0392b;
+	margin: 0 0 8px;
+}
+
+.suspended-sub {
+	font-size: 14px;
+	color: #666;
+	margin: 0 0 24px;
+}
+
+.suspended-details {
+	background: #fff5f5;
+	border: 1px solid #ffc5c5;
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin-bottom: 20px;
+	font-size: 13.5px;
+	color: #333;
+	line-height: 1.8;
+}
+
+.suspended-details p {
+	margin: 0;
+}
+
+.suspended-contact {
+	font-size: 14px;
+	font-weight: 500;
+	color: #444;
+	line-height: 1.6;
+}
+
+.suspended-contact p {
+	margin: 0;
+}

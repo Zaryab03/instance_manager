@@ -36,14 +36,14 @@
    "fieldname": "ess_user_limit",
    "fieldtype": "Int",
    "label": "ESS User Limit",
-   "default": 100,
+   "default": "100",
    "reqd": 1
   },
   {
    "fieldname": "core_user_limit",
    "fieldtype": "Int",
    "label": "Core User Limit",
-   "default": 50,
+   "default": "50",
    "reqd": 1
   },
   {
@@ -55,7 +55,7 @@
    "fieldname": "database_limit_gb",
    "fieldtype": "Float",
    "label": "Database Size Limit (GB)",
-   "default": 10.0,
+   "default": "10.0",
    "reqd": 1
   },
   {
