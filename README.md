@@ -1,6 +1,6 @@
 # Instance Manager
 
-A custom Frappe app for managing instance-level limits and license expiry.
+Instance Manager is a Frappe control app designed to manage and restrict system-level configurations such as ESS core behavior, server scripts, client scripts, and database usage. It also provides instance-level expiry control with automated user notifications.
 
 ## Features
 
