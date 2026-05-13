@@ -85,68 +85,22 @@ After installation, create an "Instance Settings" document:
   - Blue: Less than 30 days remaining
 - Updates every 5 minutes
 
-## API Endpoints
-
-### Get Instance Status
-```
-GET /api/method/instance_manager.doctype.instance_settings.instance_settings.get_instance_status
-```
-
-Returns:
-```json
-{
-  "expired": false,
-  "days_remaining": 180,
-  "ess_users": 45,
-  "core_users": 12,
-  "ess_limit": 100,
-  "core_limit": 50,
-  "database_limit_gb": 10.0,
-  "expiry_date": "2026-12-31"
-}
-```
-
-### Check User Limit
-```
-GET /api/method/instance_manager.doctype.instance_settings.instance_settings.check_user_limit
-Parameters: user_type=System User|Website User
-```
-
-### Check Expiry
-```
-GET /api/method/instance_manager.doctype.instance_settings.instance_settings.check_expiry
-```
-
-## Usage Examples
-
-### Check limits before creating a user
-```python
-from instance_manager.doctype.instance_settings.instance_settings import check_user_limit
-
-result = check_user_limit("System User")
-if result["allowed"]:
-    # Create user
-    pass
-else:
-    print(f"Cannot create user: {result['reason']}")
-```
-
-### Get current status
-```python
-from instance_manager.utils.instance_utils import get_instance_summary
-
-summary = get_instance_summary()
-print(f"Days remaining: {summary['days_remaining']}")
-```
-
-## Permissions
-
-By default, only System Managers can view and edit Instance Settings.
-
 ## Support
 
 For issues, feature requests, or contributions, please contact your administrator.
 
+
 ## License
 
 MIT License - See LICENSE file for details
+
+
+## Bench usefull commands
+
+bench --site mysite instance-status
+bench --site mysite instance-set-expiry 2026-12-31
+bench --site mysite instance-renew --days 365
+bench --site mysite instance-activate       # bypass checks
+bench --site mysite instance-deactivate     # restore checks
+
+
