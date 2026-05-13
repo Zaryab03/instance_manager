@@ -5,8 +5,8 @@ import frappe
 
 
 def has_permission(doc=None, ptype=None, user=None):
-	user = user or frappe.session.user
-	return "System Manager" in frappe.get_roles(user)
+	# Instance Settings is server-only; no role may open it via the desk.
+	return False
 
 
 def has_server_script_permission(doc=None, ptype=None, user=None):
